@@ -85,7 +85,7 @@ contract NFTReward is INFTReward, IERC721Receiver, ReentrancyGuard {
         uint256 claimableReward;
         if (info.totalReward > 0) {
             info.lastUpdateTime = block.timestamp;
-            claimableReward = info.totalReward - stakeInfos[tokenId].claimed;
+            claimableReward = info.totalReward - info.claimed;
 
             if (claimableReward > 0) {
                 IBaseToken(AZT).mint(receiver, claimableReward);

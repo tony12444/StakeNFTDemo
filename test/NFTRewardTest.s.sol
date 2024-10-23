@@ -351,4 +351,83 @@ contract NFTTest is Test {
         assertEq(nft.balanceOf(minter), 0, "test result: fail11");
         assertEq(azt.balanceOf(address(reward)), 1000 * 1e18, "test result: fail12");
     }
+
+    function test_Claim() external {
+        address admin = address(0x1234);
+
+        vm.startPrank(admin);
+        nft.setStartTime(block.timestamp);
+        nft.setEndTime(block.timestamp + 3600);
+        vm.stopPrank();
+
+        //set white list address
+        // white list address address(1),address(4),address(2),address(3),address(4),address(5)
+        address minter = address(4);
+
+        bytes32[] memory proofs = new bytes32[](3);
+        proofs[0] = 0x5b70e80538acdabd6137353b0f9d8d149f4dba91e8be2e7946e409bfdbe685b9;
+        proofs[1] = 0xf95c14e6953c95195639e8266ab1a6850864d59a829da9f9b13602ee522f672b;
+        proofs[2] = 0x421df1fa259221d02aa4956eb0d35ace318ca24c0a33a64c1af96cf67cf245b6;
+
+        vm.prank(minter);
+        nft.whiteListMint(minter, proofs);
+
+        // approve
+        vm.prank(minter);
+        nft.setApprovalForAll(address(reward), true);
+
+        // stake
+        vm.prank(minter);
+        reward.stake(1);
+
+
+        vm.warp(block.timestamp + 2 days);
+
+        vm.prank(minter);
+        reward.claim(1, minter);
+
+        uint256 rewardClaimed = azt.balanceOf(minter);
+
+        assertEq(rewardClaimed, 1000 * 1e18 * ((1 + 0.1)**2) - 1000 * 1e18, "test result: fail13");
+    }
+
+    function testFail_Claim() external {
+        address admin = address(0x1234);
+
+        vm.startPrank(admin);
+        nft.setStartTime(block.timestamp);
+        nft.setEndTime(block.timestamp + 3600);
+        vm.stopPrank();
+
+        //set white list address
+        // white list address address(1),address(4),address(2),address(3),address(4),address(5)
+        address minter = address(4);
+
+        bytes32[] memory proofs = new bytes32[](3);
+        proofs[0] = 0x5b70e80538acdabd6137353b0f9d8d149f4dba91e8be2e7946e409bfdbe685b9;
+        proofs[1] = 0xf95c14e6953c95195639e8266ab1a6850864d59a829da9f9b13602ee522f672b;
+        proofs[2] = 0x421df1fa259221d02aa4956eb0d35ace318ca24c0a33a64c1af96cf67cf245b6;
+
+        vm.prank(minter);
+        nft.whiteListMint(minter, proofs);
+
+        // approve
+        vm.prank(minter);
+        nft.setApprovalForAll(address(reward), true);
+
+        // stake
+        vm.prank(minter);
+        reward.stake(1);
+
+
+        vm.warp(block.timestamp + 1 days);
+
+        vm.prank(address(10));
+        reward.claim(1, minter);
+
+        uint256 rewardClaimed = azt.balanceOf(minter);
+
+        assertEq(rewardClaimed, 1000 * 1e18 * (1 + 0.1) - 1000 * 1e18, "test result: fail13");
+    }
+
 }
