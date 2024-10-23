@@ -21,6 +21,7 @@ contract NFTReward is INFTReward, IERC721Receiver, ReentrancyGuard {
     uint256 public interestRate;                                   // interest rate, compound interest ,scale 1e4
 
     struct StakeInfo {
+        address account;
         uint256 totalReward;
         uint256 claimed;
         uint256 lastUpdateTime;
@@ -78,10 +79,8 @@ contract NFTReward is INFTReward, IERC721Receiver, ReentrancyGuard {
     /// @param tokenId nft token id
     /// @param receiver, receiver address
     function claim(uint256 tokenId, address receiver) external override nonReentrant {
-        address owner = IERC721(stakeNFT).ownerOf(tokenId);
-        require(owner == msg.sender, 'N_C0');
-
         StakeInfo storage info = stakeInfos[tokenId];
+        require(info.account == msg.sender, 'N_C0');
         info.totalReward = _claimable(tokenId);
         uint256 claimableReward;
         if (info.totalReward > 0) {
@@ -121,6 +120,7 @@ contract NFTReward is INFTReward, IERC721Receiver, ReentrancyGuard {
 
         // update last time
         stakeInfos[tokenId].lastUpdateTime = block.timestamp;
+        stakeInfos[tokenId].account = account;
 
         emit Staked(account, tokenId);
     }
@@ -130,12 +130,9 @@ contract NFTReward is INFTReward, IERC721Receiver, ReentrancyGuard {
     /// @param tokenId token id
     /// @param receiver asset receive address
     function _unStake(address account, uint256 tokenId, address receiver) internal {
-        address owner = IERC721(stakeNFT).ownerOf(tokenId);
-        require(owner == account, 'N_U0');
-
         StakeInfo memory info = stakeInfos[tokenId];
         // no staked
-        require(info.lastUpdateTime == 0, 'N_U0');
+        require(info.account == account, 'N_U0');
         uint256 claimableReward = _claimable(tokenId) - info.claimed;
         // mint reward to owner
         if (claimableReward > 0) {

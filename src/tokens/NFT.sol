@@ -65,7 +65,7 @@ contract NFT is ERC721, INFT {
     /// @param  account minter address
     /// @param  merkleProof leaf proof hash array
     function whiteListMint(address account, bytes32[] calldata merkleProof) external override {
-        require(block.timestamp >= startTime && startTime <= endTime, "N_F0");
+        require(block.timestamp >= startTime && block.timestamp <= endTime, "N_F0");
         require(!isMinted[account], 'N_F1');
         require(tokenId < cap, 'N_F2');
 
