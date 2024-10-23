@@ -110,7 +110,7 @@ contract NFTReward is INFTReward, IERC721Receiver, ReentrancyGuard {
     function _stake(address account, uint256 tokenId) internal {
         // If it's the initial stake, a reward of 1000 AZT  will be given.
         // Otherwise, you need to transfer 1000 AZT to the contract.
-        if (isClaimedInitialReward[tokenId]) {
+        if (!isClaimedInitialReward[tokenId]) {
             // mint initial stake reward
             IBaseToken(AZT).mint(address(this), INIT_REWARD);
             isClaimedInitialReward[tokenId] = true;
