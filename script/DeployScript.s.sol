@@ -8,9 +8,13 @@ import {Governable} from "../src/gov/Governable.sol";
 import {NFTReward} from "../src/NFTReward.sol";
 
 contract DeployScript is Script {
+    // TODO change you deploy address
     address public tmpGov = 0x0444C019C90402033fF8246BCeA440CeB9468C88;
+    // TODO set white list proof root hash
     bytes32 public tmpRoot = 0;
+    // TODO set start time
     uint256 public starTime = 0;
+    // TODO set end time
     uint256 public endTime = 0;
     string public baseUri = "https://www.google.com";
 
